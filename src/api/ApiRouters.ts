@@ -36,11 +36,6 @@ export class ApiRouters {
                     JSON.stringify(commandCreate)
                 );
 
-            // todo commandHandler dans la partie kafka
-            let commandHandler = new CreateHandler();
-            let evt = commandHandler
-                .toEvent(commandCreate, randomUUID());
-
             KafkaEngine
                 .start()
                 .eventCreateUpdated$
