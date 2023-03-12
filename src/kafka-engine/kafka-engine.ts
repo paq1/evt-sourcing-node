@@ -1,8 +1,10 @@
-import kafka, {Consumer, KeyedMessage} from "kafka-node"
-import {KafkaService} from "./kafka.service";
-import {consumers} from "stream";
+import kafka, {Consumer} from "kafka-node"
+import {Observable, Subject} from "rxjs";
 
 export class KafkaEngine {
+
+    evenementCreateSubject$: Subject<any> = new Subject<any>();
+    val$: Observable<any> = this.evenementCreateSubject$.asObservable();
 
     private static instance: KafkaEngine;
     private groupName: string = process.env["KAFKA_GROUP_ID"] || "defaultAppName";
@@ -14,8 +16,6 @@ export class KafkaEngine {
     };
 
     private topics = [
-        { topic: 'topic1', partition: 0 },
-        { topic: 'topic2', partition: 0 },
         { topic: `${this.kafkaPrefix}-commands`, partition: 0 },
         { topic: `${this.kafkaPrefix}-events`, partition: 0 },
         { topic: `${this.kafkaPrefix}-results`, partition: 0 }
@@ -50,13 +50,21 @@ export class KafkaEngine {
 
     private startListen(): void {
         this.consumer.on('message', function (message) {
-            console.log("consumed main")
+            console.log("consumed main");
             console.log(message);
         });
 
         this.consumerCreate.on('message', function (message) {
-            console.log("consumed create")
+            console.log("consumed create");
             console.log(message);
+
+            // todo on recup la command (on regarde le kind)
+            // todo on essai de la mapper en command si le kind correspond a la command
+
+            KafkaEngine
+                .start()
+                .evenementCreateSubject$
+                .next("success"); // todo mettre l'objet de retour pour la requete ?
         });
     }
 }

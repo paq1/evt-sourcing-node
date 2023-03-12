@@ -7,6 +7,7 @@ import {KafkaService} from "../kafka-engine/kafka.service";
 export class ApiRouters {
 
     private app = express();
+    private kafkaPrefix: string = process.env["KAFKA_PREFIX"] || "dev";
 
     private static instance: ApiRouters;
     private constructor() {
@@ -26,8 +27,12 @@ export class ApiRouters {
             // todo a recup dans le body
             let commandCreate = new CommandTaskCreate(randomUUID(), "toto");
 
-            // todo injecter la commande dans le topic kafka command (pas topic1 😁)
-            KafkaService.getInstance().produceOn("topic1", JSON.stringify(commandCreate));
+            KafkaService
+                .getInstance()
+                .produceOn(
+                    `${this.kafkaPrefix}-commands`,
+                    JSON.stringify(commandCreate)
+                );
 
             // todo commandHandler dans la partie kafka
             let commandHandler = new CreateHandler();
