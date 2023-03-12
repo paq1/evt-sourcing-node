@@ -26,7 +26,7 @@ export class ApiRouters {
             // todo a recup dans le body
             let commandCreate = new CommandTaskCreate(randomUUID(), "toto");
 
-            // todo injecter la commande dans le topic kafka
+            // todo injecter la commande dans le topic kafka command (pas topic1 😁)
             KafkaService.getInstance().produceOn("topic1", JSON.stringify(commandCreate));
 
             // todo commandHandler dans la partie kafka
