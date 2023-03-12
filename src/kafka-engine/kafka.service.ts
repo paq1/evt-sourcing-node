@@ -46,10 +46,11 @@ export class KafkaService {
                 messages: message,
                 partition: 0
             }
-        ]
+        ];
 
         this.produceur.send(payload, (err, data) => {
-            console.log(data)
+            console.log(`producer :`);
+            console.log(data);
         });
     }
 

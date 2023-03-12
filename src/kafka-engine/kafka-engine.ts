@@ -1,4 +1,6 @@
-import kafka, {KeyedMessage} from "kafka-node"
+import kafka, {Consumer, KeyedMessage} from "kafka-node"
+import {KafkaService} from "./kafka.service";
+import {consumers} from "stream";
 
 export class KafkaEngine {
 
@@ -6,25 +8,31 @@ export class KafkaEngine {
     private groupName: string = process.env["KAFKA_GROUP_ID"] || "defaultAppName";
     private kafkaPrefix: string = process.env["KAFKA_PREFIX"] || "dev";
 
-
-    private consumerOptions: kafka.ConsumerGroupOptions = {
-        kafkaHost: '127.0.0.1:9092',
-        groupId: this.groupName,
-        sessionTimeout: 15000,
-        protocol: ['roundrobin'],
-        fromOffset: 'earliest'
+    private consumerOption = {
+        autoCommit: true,
+        groupId: this.groupName
     };
 
-    private consumer = new kafka.ConsumerGroup(
-        Object.assign({id: "consumer1"} ,this.consumerOptions),
-        [
-            'topic1',
-            'topic2',
-            `${this.kafkaPrefix}-commands`,
-            `${this.kafkaPrefix}-events`,
-            `${this.kafkaPrefix}-results`
-        ]
+    private topics = [
+        { topic: 'topic1', partition: 0 },
+        { topic: 'topic2', partition: 0 },
+        { topic: `${this.kafkaPrefix}-commands`, partition: 0 },
+        { topic: `${this.kafkaPrefix}-events`, partition: 0 },
+        { topic: `${this.kafkaPrefix}-results`, partition: 0 }
+    ];
+
+    private consumer = new Consumer(
+        new kafka.KafkaClient(),
+        this.topics,
+        this.consumerOption
     );
+
+    private consumerCreate = new Consumer(
+        new kafka.KafkaClient(),
+        this.topics,
+        this.consumerOption
+    );
+
 
     private constructor() {
         this.startListen();
@@ -42,7 +50,12 @@ export class KafkaEngine {
 
     private startListen(): void {
         this.consumer.on('message', function (message) {
-            console.log("consumed")
+            console.log("consumed main")
+            console.log(message);
+        });
+
+        this.consumerCreate.on('message', function (message) {
+            console.log("consumed create")
             console.log(message);
         });
     }
