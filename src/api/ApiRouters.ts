@@ -2,6 +2,7 @@ import express from "express";
 import {CommandTaskCreate} from "../model/commands/CommandTaskCreate";
 import {randomUUID} from "crypto";
 import {CreateHandler} from "../core/commandHandler/CreateHandler";
+import {KafkaService} from "../kafka-engine/kafka.service";
 
 export class ApiRouters {
 
@@ -26,9 +27,9 @@ export class ApiRouters {
             let commandCreate = new CommandTaskCreate(randomUUID(), "toto");
 
             // todo injecter la commande dans le topic kafka
+            KafkaService.getInstance().produceOn("topic1", JSON.stringify(commandCreate));
 
-
-            // commandHandler dans la partie kafka
+            // todo commandHandler dans la partie kafka
             let commandHandler = new CreateHandler();
             let evt = commandHandler
                 .toEvent(commandCreate, randomUUID());

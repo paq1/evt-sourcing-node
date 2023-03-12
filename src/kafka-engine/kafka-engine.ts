@@ -3,9 +3,9 @@ import kafka, {KeyedMessage} from "kafka-node"
 export class KafkaEngine {
 
     private static instance: KafkaEngine;
-    private client = new kafka.KafkaClient();
-    // private produceur = new kafka.Producer(this.client);
     private groupName: string = process.env["KAFKA_GROUP_ID"] || "defaultAppName";
+    private kafkaPrefix: string = process.env["KAFKA_PREFIX"] || "dev";
+
 
     private consumerOptions: kafka.ConsumerGroupOptions = {
         kafkaHost: '127.0.0.1:9092',
@@ -19,7 +19,10 @@ export class KafkaEngine {
         Object.assign({id: "consumer1"} ,this.consumerOptions),
         [
             'topic1',
-            'topic2'
+            'topic2',
+            `${this.kafkaPrefix}-commands`,
+            `${this.kafkaPrefix}-events`,
+            `${this.kafkaPrefix}-results`
         ]
     );
 
@@ -39,28 +42,8 @@ export class KafkaEngine {
 
     private startListen(): void {
         this.consumer.on('message', function (message) {
+            console.log("consumed")
             console.log(message);
         });
     }
-
-    // private startProduce(): void {
-    //     let km = new KeyedMessage("uuid-ici-etc", "message push")
-    //     let payload = [
-    //         {
-    //             topic: 'topic1', messages: 'hi', partition: 0
-    //         },
-    //         {
-    //             topic: 'topic2', messages: ["hello", "world", km]
-    //         }
-    //     ]
-    //     this.produceur.on('ready', () => {
-    //         this.produceur.send(payload, (err, data) => {
-    //             console.log(data)
-    //         });
-    //     });
-    //
-    //     this.produceur.on("error",(err) => {
-    //         console.error(err);
-    //     })
-    // }
 }
