@@ -3,6 +3,8 @@ import {CommandTaskCreate} from "../model/commands/CommandTaskCreate";
 import {randomUUID} from "crypto";
 import {CreateHandler} from "../core/commandHandler/CreateHandler";
 import {KafkaService} from "../kafka-engine/kafka.service";
+import {KafkaEngine} from "../kafka-engine/kafka-engine";
+import {first} from "rxjs";
 
 export class ApiRouters {
 
@@ -39,7 +41,13 @@ export class ApiRouters {
             let evt = commandHandler
                 .toEvent(commandCreate, randomUUID());
 
-            res.send(evt);
+            KafkaEngine
+                .start()
+                .val$
+                .pipe(first())
+                .subscribe((val) => {
+                    res.send(val);
+                });
         });
 
         this.app.listen(3000, () => {
