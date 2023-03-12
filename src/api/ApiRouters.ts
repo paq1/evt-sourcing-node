@@ -43,7 +43,7 @@ export class ApiRouters {
 
             KafkaEngine
                 .start()
-                .val$
+                .eventCreateUpdated$
                 .pipe(first())
                 .subscribe((val) => {
                     res.send(val);
